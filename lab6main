@@ -1,0 +1,128 @@
+import java.util.Scanner;
+
+class Sensor {
+    private int value;
+
+    public Sensor() {
+        value = 0;
+    }
+
+    public void setValue(int value) {
+        this.value += value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
+class MeasureCount {
+    private int number;
+    private static int total = 0;
+
+    public MeasureCount() {
+        number = 0;
+    }
+
+    public void increment() {
+        number++;
+        total++;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public static int getTotal() {
+        return total;
+    }
+}
+
+interface ITemperatureMeasure {
+    void setValue();
+    double getValue();
+}
+
+class TemperatureMeasure implements ITemperatureMeasure {
+    private Sensor h;
+    private MeasureCount measure;
+
+    public TemperatureMeasure(Sensor h) {
+        this.h = h;
+        this.measure = new MeasureCount();
+    }
+
+    public int getNumber() {
+        return measure.getNumber();
+    }
+
+    @Override
+    public double getValue() {
+        if (measure.getNumber() == 0) {
+            return 0;
+        }
+        return (double) h.getValue() / measure.getNumber();
+    }
+
+    @Override
+    public void setValue() {
+        measure.increment();
+
+        System.out.print(
+            "Введите температуру измерения " +
+            measure.getNumber() + ": "
+        );
+
+        int value = Main.scanner.nextInt();
+        h.setValue(value);
+    }
+
+    public static int getTotal() {
+        return MeasureCount.getTotal();
+    }
+}
+
+class ShowTemperature {
+    public static void show(TemperatureMeasure t) {
+        System.out.println(
+            "Количество измерений: " + t.getNumber()
+        );
+        System.out.printf(
+            "Средняя температура: %.2f °C%n",
+            t.getValue()
+        );
+    }
+}
+
+public class Main {
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        TemperatureMeasure t1 =
+            new TemperatureMeasure(new Sensor());
+
+        TemperatureMeasure t2 =
+            new TemperatureMeasure(new Sensor());
+
+        System.out.println("=== ДАТЧИК № 1 ===");
+        for (int i = 0; i < 5; i++) {
+            t1.setValue();
+        }
+
+        ShowTemperature.show(t1);
+
+        System.out.println("\n=== ДАТЧИК № 2 ===");
+        for (int i = 0; i < 5; i++) {
+            t2.setValue();
+        }
+
+        ShowTemperature.show(t2);
+
+        System.out.println(
+            "\nОбщее количество измерений: "
+            + TemperatureMeasure.getTotal()
+        );
+
+        scanner.close();
+    }
+}
